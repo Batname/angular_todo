@@ -6,6 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var log  = require('./libs/log')(module);
 var config = require('./libs/config');
+var oauth2 = require('./libs/oauth2');
+var passport = require('passport');
+
 
 
 var routes = require('./routes/index');
@@ -34,6 +37,20 @@ app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.use('/', routes);
 app.use('/api', api);
 
+app.use(passport.initialize());
+app.post('/oauth/token', oauth2.token);
+app.get('/api/userInfo',
+    passport.authenticate('bearer', { session: false }),
+    function(req, res) {
+        // req.authInfo is set using the `info` argument supplied by
+        // `BearerStrategy`.  It is typically used to indicate scope of the token,
+        // and used in access control checks.  For illustrative purposes, this
+        // example simply returns the scope in the response.
+        res.json({ user_id: req.user.userId, name: req.user.username, scope: req.authInfo.scope })
+    }
+);
+
+require('./libs/auth');
 
 
 app.use(function(req, res, next){
