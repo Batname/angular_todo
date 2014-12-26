@@ -15,16 +15,23 @@ db.once('open', function callback () {
 var Schema = mongoose.Schema;
 
 // Schemas
-var User = new Schema({
-    email: { type: String, required: true },
-    encrypted_password: { type: String, required: true }
+var Tasks = new Schema({
+    description: { type: String, required: true },
+    priority: { type: Number, required: true},
+    completed: { type: Boolean, required: true},
+    date: { type: Date, default: Date.now }
+});
+
+var TaskList = new Schema({
+    task_lists: { type: String, required: true },
+    tasks: [Tasks]
 });
 
 // validation
-User.path('email').validate(function (v) {
+TaskList.path('task_lists').validate(function (v) {
     return v.length > 5 && v.length < 70;
 });
 
-var UserModel = mongoose.model('User', User);
+var TaskListModel = mongoose.model('TaskList', TaskList);
 
-module.exports.UserModel = UserModel;
+module.exports.TaskListModel = TaskListModel;
